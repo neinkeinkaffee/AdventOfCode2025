@@ -89,10 +89,6 @@ Using the discussion forum for code-specific conversations helps keep our Linked
 - Respect that everyone has different skill levels
 - Don't spoil puzzles for others before they've had a chance to solve them
 
-## Prizes 🎁
-
-Stay tuned for information about prizes for outstanding solutions!
-
 ## Need Help?
 
 - Join our community discussions [https://www.linkedin.com/groups/13108731/]
