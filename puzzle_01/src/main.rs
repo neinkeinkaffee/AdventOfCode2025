@@ -61,17 +61,17 @@ fn sum_mod_100(a: i32, b: i32) -> i32 {
 }
 
 fn sum_mod_and_div_100(a: i32, b: i32) -> (i32, i32) {
+    // Special case treatment for left dials that land on 0.
     if a == -(b%100) {
         return (0, -(b/100)+1)
     }
     let mut nils = ((a + b) / 100).abs();
     let rem_euclidian = (a + b).rem_euclid(100);
     let rem_non_euclidian = (a + b) % 100;
+    // For left dials that don't land on but cross 0 we still need to count an additional 0.
     if rem_euclidian != rem_non_euclidian && a != 0 {
         nils += 1;
     }
-    println!("input: {a}, {b}");
-    println!("output: {rem_euclidian}, {nils}");
     (rem_euclidian, nils)
 }
 
@@ -80,28 +80,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_count_more_nils() {
-        assert_eq!(count_more_nils(50, vec!{"R50"}.into_iter().map(str::to_owned).collect()), 1);
-        assert_eq!(count_more_nils(50, vec!{"R150"}.into_iter().map(str::to_owned).collect()), 2);
-        assert_eq!(count_more_nils(50, vec!{"L150"}.into_iter().map(str::to_owned).collect()), 2);
-        assert_eq!(count_more_nils(50, vec!{"R1000"}.into_iter().map(str::to_owned).collect()), 10);
-        assert_eq!(count_more_nils(50, vec!{"L1000"}.into_iter().map(str::to_owned).collect()), 10);
-        assert_eq!(count_more_nils(50, vec!{"L68"}.into_iter().map(str::to_owned).collect()), 1);
-        assert_eq!(count_more_nils(50, vec!{"L68", "L30", "R48"}.into_iter().map(str::to_owned).collect()), 2);
-        assert_eq!(count_more_nils(50, vec!{"L68", "L30", "R48", "L5", "R60"}.into_iter().map(str::to_owned).collect()), 3);
-        assert_eq!(count_more_nils(50, vec!{"L68", "L30", "R48", "L5", "R60", "L55"}.into_iter().map(str::to_owned).collect()), 4);
-        assert_eq!(count_more_nils(50, vec!{"L68", "L30", "R48", "L5", "R60", "L55", "L1", "L99"}.into_iter().map(str::to_owned).collect()), 5);
-        assert_eq!(count_more_nils(50, vec!{"L68", "L30", "R48", "L5", "R60", "L55", "L1", "L99", "R14", "L82"}.into_iter().map(str::to_owned).collect()), 6);
-    }
-
-    #[test]
     fn test_count_nils() {
         let input = vec!{"L68", "L30", "R48", "L5", "R60", "L55", "L1", "L99", "R14", "L82"}.into_iter().map(str::to_owned).collect();
         assert_eq!(count_nils(50, input), 3)
     }
 
     #[test]
-    fn test_cmd_to_int() {
+    fn test_parse_cmd() {
         assert_eq!(parse_cmd("L68"), -68);
         assert_eq!(parse_cmd("R48"), 48);
         assert_eq!(parse_cmd("L1"), -1);
@@ -120,6 +105,21 @@ mod tests {
         assert_eq!(sum_mod_100(99, -99), 0);
         assert_eq!(sum_mod_100(0, 14), 14);
         assert_eq!(sum_mod_100(14, -82), 32);
+    }
+
+    #[test]
+    fn test_count_more_nils() {
+        assert_eq!(count_more_nils(50, vec!{"R50"}.into_iter().map(str::to_owned).collect()), 1);
+        assert_eq!(count_more_nils(50, vec!{"R150"}.into_iter().map(str::to_owned).collect()), 2);
+        assert_eq!(count_more_nils(50, vec!{"L150"}.into_iter().map(str::to_owned).collect()), 2);
+        assert_eq!(count_more_nils(50, vec!{"R1000"}.into_iter().map(str::to_owned).collect()), 10);
+        assert_eq!(count_more_nils(50, vec!{"L1000"}.into_iter().map(str::to_owned).collect()), 10);
+        assert_eq!(count_more_nils(50, vec!{"L68"}.into_iter().map(str::to_owned).collect()), 1);
+        assert_eq!(count_more_nils(50, vec!{"L68", "L30", "R48"}.into_iter().map(str::to_owned).collect()), 2);
+        assert_eq!(count_more_nils(50, vec!{"L68", "L30", "R48", "L5", "R60"}.into_iter().map(str::to_owned).collect()), 3);
+        assert_eq!(count_more_nils(50, vec!{"L68", "L30", "R48", "L5", "R60", "L55"}.into_iter().map(str::to_owned).collect()), 4);
+        assert_eq!(count_more_nils(50, vec!{"L68", "L30", "R48", "L5", "R60", "L55", "L1", "L99"}.into_iter().map(str::to_owned).collect()), 5);
+        assert_eq!(count_more_nils(50, vec!{"L68", "L30", "R48", "L5", "R60", "L55", "L1", "L99", "R14", "L82"}.into_iter().map(str::to_owned).collect()), 6);
     }
 
     #[test]
