@@ -17,32 +17,6 @@ fn main() {
     println!("Total joltage: {sum}")
 }
 
-fn left_most_max_index(
-    start: usize,
-    end: usize,
-    elements: &[u128],
-    skip: &mut Vec<bool>,
-) -> Option<usize> {
-    let mut max = 0;
-    let mut max_index = None;
-
-    for i in start..end {
-        let x = elements[i];
-        if max < x && !skip[i] {
-            max = x;
-            max_index = Some(i);
-        }
-    }
-
-    match max_index {
-        Some(i) => {
-            skip[i] = true;
-            Some(i)
-        }
-        None => None,
-    }
-}
-
 fn max_joltage(battery: String, num_batteries: i32) -> u128 {
     let joltages: Vec<u128> = battery
         .chars()
@@ -77,6 +51,32 @@ fn max_joltage(battery: String, num_batteries: i32) -> u128 {
     }
 
     total
+}
+
+fn left_most_max_index(
+    start: usize,
+    end: usize,
+    elements: &[u128],
+    skip: &mut Vec<bool>,
+) -> Option<usize> {
+    let mut max = 0;
+    let mut max_index = None;
+
+    for i in start..end {
+        let x = elements[i];
+        if max < x && !skip[i] {
+            max = x;
+            max_index = Some(i);
+        }
+    }
+
+    match max_index {
+        Some(i) => {
+            skip[i] = true;
+            Some(i)
+        }
+        None => None,
+    }
 }
 
 #[cfg(test)]
