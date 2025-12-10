@@ -151,9 +151,7 @@ fn display_removal_potential(grid: &Vec<Vec<bool>>, counter: &Vec<Vec<i32>>) -> 
 
 #[cfg(test)]
 mod test {
-    use crate::{
-        count_removable_rolls, count_total_removable, parse_input, remove_removable_rolls,
-    };
+    use super::*;
 
     #[test]
     fn test_parse_input() {
