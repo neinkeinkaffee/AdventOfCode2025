@@ -7,12 +7,10 @@ fn main() {
     let lines = read_to_string("input.txt").unwrap();
     let input = parse_input(&*lines);
 
-    let adj = add_n_shortest_edges(input, 1000);
-    let circuits = circuits_after_n_edges(adj);
+    let result1 = solve_puzzle_part1(input);
+    println!("Result part 1: {result1}")
 
-    let result = circuits[..3].iter().map(|n| *n as u32).reduce(|a, b| a*b).unwrap();
 
-    println!("Result: {result}")
 }
 
 fn parse_input(input: &str) -> Vec<Vec<usize>> {
@@ -28,7 +26,28 @@ fn parse_line(l: &str) -> Vec<usize> {
         .collect()
 }
 
+fn solve_puzzle_part1(input: Vec<Vec<usize>>) -> u32 {
+    let adj = add_n_shortest_edges(input, 1000);
+    let circuits = find_circuits(adj);
+
+    let result = circuits[..3].iter().map(|n| *n as u32).reduce(|a, b| a * b).unwrap();
+    result
+}
+
 fn add_n_shortest_edges(input: Vec<Vec<usize>>, n: usize) -> Vec<HashSet<usize>> {
+    let weighted_edges = calculate_edge_weights(&input);
+
+    let mut adj = create_empty_adjacency_matrix(input.len());
+    for k in 0..n {
+        let (i, j, _) = weighted_edges[k];
+        adj[i].insert(j);
+        adj[j].insert(i);
+    }
+
+    adj
+}
+
+fn calculate_edge_weights(input: &Vec<Vec<usize>>) -> Vec<(usize, usize, f64)> {
     let mut weighted_edges: Vec<(usize, usize, f64)> = vec![];
     for (i, p_i) in input.iter().enumerate() {
         for (j, p_j) in input.iter().enumerate() {
@@ -42,21 +61,18 @@ fn add_n_shortest_edges(input: Vec<Vec<usize>>, n: usize) -> Vec<HashSet<usize>>
         }
     }
     weighted_edges.sort_by(|(_, _, w1), (_, _, w2)| w1.partial_cmp(w2).unwrap());
+    weighted_edges
+}
 
+fn create_empty_adjacency_matrix(N: usize) -> Vec<HashSet<usize>> {
     let mut adj: Vec<HashSet<usize>> = vec![];
-    for _ in 0..input.len() {
+    for _ in 0..N {
         adj.push(HashSet::new());
     }
-    for k in 0..n {
-        let (i, j, _) = weighted_edges[k as usize];
-        adj[i].insert(j);
-        adj[j].insert(i);
-    }
-
     adj
 }
 
-fn circuits_after_n_edges(adj: Vec<HashSet<usize>>) -> Vec<usize> {
+fn find_circuits(adj: Vec<HashSet<usize>>) -> Vec<usize> {
     let mut circuits: Vec<usize> = vec![];
     let mut visited: Vec<bool> = vec![];
     for _ in 0..adj.len() {
@@ -186,10 +202,10 @@ mod tests {
                            984,92,344\n\
                            425,690,689\n";
 
-        assert_eq!(circuits_after_n_edges(add_n_shortest_edges(parse_input(input), 1)), [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
-        assert_eq!(circuits_after_n_edges(add_n_shortest_edges(parse_input(input), 2)), [3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
-        assert_eq!(circuits_after_n_edges(add_n_shortest_edges(parse_input(input), 3)), [3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
-        assert_eq!(circuits_after_n_edges(add_n_shortest_edges(parse_input(input), 4)), [3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
-        assert_eq!(circuits_after_n_edges(add_n_shortest_edges(parse_input(input), 10)), [5, 4, 2, 2, 1, 1, 1, 1, 1, 1, 1]);
+        assert_eq!(find_circuits(add_n_shortest_edges(parse_input(input), 1)), [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+        assert_eq!(find_circuits(add_n_shortest_edges(parse_input(input), 2)), [3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+        assert_eq!(find_circuits(add_n_shortest_edges(parse_input(input), 3)), [3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+        assert_eq!(find_circuits(add_n_shortest_edges(parse_input(input), 4)), [3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+        assert_eq!(find_circuits(add_n_shortest_edges(parse_input(input), 10)), [5, 4, 2, 2, 1, 1, 1, 1, 1, 1, 1]);
     }
 }
