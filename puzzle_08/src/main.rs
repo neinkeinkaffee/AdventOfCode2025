@@ -7,10 +7,11 @@ fn main() {
     let lines = read_to_string("input.txt").unwrap();
     let input = parse_input(&*lines);
 
-    let result1 = solve_puzzle_part1(input);
-    println!("Result part 1: {result1}")
+    let result1 = solve_puzzle_part1(&input);
+    println!("Result part 1: {result1}");
 
-
+    let result2 = solve_puzzle_part2(&input, 1000);
+    println!("Result part 2: {result2}")
 }
 
 fn parse_input(input: &str) -> Vec<Vec<usize>> {
@@ -26,15 +27,15 @@ fn parse_line(l: &str) -> Vec<usize> {
         .collect()
 }
 
-fn solve_puzzle_part1(input: Vec<Vec<usize>>) -> u32 {
+fn solve_puzzle_part1(input: &Vec<Vec<usize>>) -> u32 {
     let adj = add_n_shortest_edges(input, 1000);
-    let circuits = find_circuits(adj);
+    let circuits = find_circuits(&adj);
 
     let result = circuits[..3].iter().map(|n| *n as u32).reduce(|a, b| a * b).unwrap();
     result
 }
 
-fn add_n_shortest_edges(input: Vec<Vec<usize>>, n: usize) -> Vec<HashSet<usize>> {
+fn add_n_shortest_edges(input: &Vec<Vec<usize>>, n: usize) -> Vec<HashSet<usize>> {
     let weighted_edges = calculate_edge_weights(&input);
 
     let mut adj = create_empty_adjacency_matrix(input.len());
@@ -64,15 +65,15 @@ fn calculate_edge_weights(input: &Vec<Vec<usize>>) -> Vec<(usize, usize, f64)> {
     weighted_edges
 }
 
-fn create_empty_adjacency_matrix(N: usize) -> Vec<HashSet<usize>> {
+fn create_empty_adjacency_matrix(num_nodes: usize) -> Vec<HashSet<usize>> {
     let mut adj: Vec<HashSet<usize>> = vec![];
-    for _ in 0..N {
+    for _ in 0..num_nodes {
         adj.push(HashSet::new());
     }
     adj
 }
 
-fn find_circuits(adj: Vec<HashSet<usize>>) -> Vec<usize> {
+fn find_circuits(adj: &Vec<HashSet<usize>>) -> Vec<usize> {
     let mut circuits: Vec<usize> = vec![];
     let mut visited: Vec<bool> = vec![];
     for _ in 0..adj.len() {
@@ -111,6 +112,34 @@ fn bfs(adj: &Vec<HashSet<usize>>, u: usize, visited: &mut Vec<bool>) -> usize {
     }
 
     circuit.len()
+}
+
+fn solve_puzzle_part2(input: &Vec<Vec<usize>>, n: usize) -> usize {
+    let weighted_edges = calculate_edge_weights(&input);
+
+    let mut adj = create_empty_adjacency_matrix(input.len());
+    for k in 0..n {
+        let (i, j, _) = weighted_edges[k];
+        adj[i].insert(j);
+        adj[j].insert(i);
+    }
+    let mut circuits = find_circuits(&adj);
+
+    let mut k = n;
+    while circuits.len() > 1 && k < weighted_edges.len() {
+        let (i, j, _) = weighted_edges[k];
+        adj[i].insert(j);
+        adj[j].insert(i);
+        circuits = find_circuits(&adj);
+        k += 1;
+    }
+
+    let p1_index = weighted_edges[k-1].0;
+    let p2_index = weighted_edges[k-1].1;
+    let p1_x = input[p1_index][0];
+    let p2_x = input[p2_index][0];
+
+    p1_x * p2_x
 }
 
 #[cfg(test)]
@@ -163,7 +192,7 @@ mod tests {
                            984,92,344\n\
                            425,690,689\n";
 
-        assert_eq!(add_n_shortest_edges(parse_input(input), 4), [
+        assert_eq!(add_n_shortest_edges(&parse_input(input), 4), [
             HashSet::from([4, 11]),
             HashSet::new(),
             HashSet::from([7]),
@@ -202,10 +231,36 @@ mod tests {
                            984,92,344\n\
                            425,690,689\n";
 
-        assert_eq!(find_circuits(add_n_shortest_edges(parse_input(input), 1)), [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
-        assert_eq!(find_circuits(add_n_shortest_edges(parse_input(input), 2)), [3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
-        assert_eq!(find_circuits(add_n_shortest_edges(parse_input(input), 3)), [3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
-        assert_eq!(find_circuits(add_n_shortest_edges(parse_input(input), 4)), [3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
-        assert_eq!(find_circuits(add_n_shortest_edges(parse_input(input), 10)), [5, 4, 2, 2, 1, 1, 1, 1, 1, 1, 1]);
+        assert_eq!(find_circuits(&add_n_shortest_edges(&parse_input(input), 1)), [2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+        assert_eq!(find_circuits(&add_n_shortest_edges(&parse_input(input), 2)), [3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+        assert_eq!(find_circuits(&add_n_shortest_edges(&parse_input(input), 3)), [3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+        assert_eq!(find_circuits(&add_n_shortest_edges(&parse_input(input), 4)), [3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+        assert_eq!(find_circuits(&add_n_shortest_edges(&parse_input(input), 10)), [5, 4, 2, 2, 1, 1, 1, 1, 1, 1, 1]);
     }
+
+  #[test]
+  fn test_solve_puzzle_part2() {
+      let input = "162,817,812\n\
+                           57,618,57\n\
+                           906,360,560\n\
+                           592,479,940\n\
+                           352,342,300\n\
+                           466,668,158\n\
+                           542,29,236\n\
+                           431,825,988\n\
+                           739,650,466\n\
+                           52,470,668\n\
+                           216,146,977\n\
+                           819,987,18\n\
+                           117,168,530\n\
+                           805,96,715\n\
+                           346,949,466\n\
+                           970,615,88\n\
+                           941,993,340\n\
+                           862,61,35\n\
+                           984,92,344\n\
+                           425,690,689\n";
+
+      assert_eq!(solve_puzzle_part2(&parse_input(input), 10), 25272);
+  }
 }
